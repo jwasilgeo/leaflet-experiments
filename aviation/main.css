@@ -1,0 +1,62 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body, div, input {
+  font-family: 'Lato', sans-serif;
+}
+
+#map {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+}
+
+.info {
+  position: absolute;
+  bottom: 40px;
+  right: 40px;
+  z-index: 2000;
+  font-size: 1.1em;
+  text-align: right;
+  user-select: none;
+  cursor: default;
+}
+
+.shadow {
+  color: rgba(0, 0, 0, 0);
+  text-shadow: 0 0 5px rgba(31, 16, 96, 0.2);
+}
+
+.radar {
+  position: absolute;
+  bottom: 40px;
+  left: 40px;
+  z-index: 2000;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  border: 50px solid rgba(0, 0, 0, 0);
+  border-top-color: deepskyblue;
+  animation: radar-rotate 1.5s ease-in-out infinite;
+}
+
+@keyframes radar-rotate {
+  0% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 0.2;
+  }
+  100% {
+    transform: rotate(360deg);
+    opacity: 0.8;
+  }
+}
+
+.off {
+  display: none;
+}

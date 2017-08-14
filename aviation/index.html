@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <meta name="description" content="" />
+
+  <title>Aviation Tracker</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css">
+  <link rel="stylesheet" href="https://unpkg.com/esri-leaflet-geocoder@2.2.6/dist/esri-leaflet-geocoder.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
+
+  <link rel="stylesheet" href="main.css">
+
+</head>
+
+<body>
+
+  <div id="map"></div>
+  <div id="radar" class="radar"></div>
+  <div class="info">
+    <div id="aircraft"></div>
+    <div id="aircraftSummary">
+      <p>AIRCRAFT AROUND THE WORLD CURRENTLY REPORTING THEIR POSITION</p>
+      <p>CLICK ON THE MAP OR SEARCH FOR AN AIRPORT</p>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet-src.js"></script>
+  <script src="https://unpkg.com/esri-leaflet@2.1.0/dist/esri-leaflet.js"></script>
+  <script src="https://unpkg.com/esri-leaflet-geocoder@2.2.6/dist/esri-leaflet-geocoder.js"></script>
+  <script src="https://cdn.rawgit.com/joergdietrich/Leaflet.Terminator/1af4bf1faa779aa6689a33ce8208972eeb44ec1c/L.Terminator.js"></script>
+  <script src="libs/Leaflet.Marker.Parallax.js"></script>
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+    crossorigin="anonymous"></script>
+
+  <script src="script.js"></script>
+
+</body>
+
+</html>

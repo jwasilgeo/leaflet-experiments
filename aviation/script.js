@@ -1,4 +1,3 @@
-
 var heathrowCoordinates = [51.4594, -0.4414],
   searchSizeM = 200000, // meters
   airplaneSpeciesIds = [0, 1, 2, 3, 5, 6],
@@ -18,42 +17,23 @@ var searchCircleLayer = L.circle(heathrowCoordinates, {
 
 var terminator = L.terminator({
   stroke: false,
-  fillOpacity: 0.1,
+  fillOpacity: 0.05,
   interactive: false
 });
 
 // aircraft marker group layers
 var aircraftParallaxGroupLayer = L.featureGroup()
-  // .on('mouseover', function(e) {
-  //   aircraftNode.innerHTML = [
-  //     '<p>',
-  //     e.layer._aircraftProperties.Mdl,
-  //     '</p><p>',
-  //     e.layer._aircraftProperties.Alt,
-  //     ' ft</p>'
-  //   ].join('');
-  // })
-  // .on('mouseout', function() {
-  //   L.DomUtil.empty(aircraftNode);
-  // });
-  .bindTooltip(function(layer) {
-    // return [
-    //   '<p>',
-    //   layer._aircraftProperties.Mdl,
-    //   '</p><p>',
-    //   layer._aircraftProperties.Alt,
-    //   ' ft</p>'
-    // ].join('');
-    return L.tooltip({
-      offset: layer._calculateOffsetFromOrigin(map.getCenter()).containerPoint
-    }, layer);
-    // .setContent([
-    //   '<p>',
-    //   layer._aircraftProperties.Mdl,
-    //   '</p><p>',
-    //   layer._aircraftProperties.Alt,
-    //   ' ft</p>'
-    // ].join(''));
+  .on('click mouseover', function(e) {
+    aircraftNode.innerHTML = [
+      '<p>',
+      e.layer._aircraftProperties.Mdl,
+      '</p><p>',
+      e.layer._aircraftProperties.Alt || '---',
+      ' ft</p><hr>'
+    ].join('');
+  })
+  .on('mouseout', function() {
+    L.DomUtil.empty(aircraftNode);
   });
 
 var aircraftShadowGroupLayer = L.featureGroup();
@@ -63,12 +43,12 @@ var worldwideAircraftGroupLayer = L.featureGroup();
 var map = L.map('map', {
   center: [0, 0],
   zoom: 2,
-  minZoom: 2,
+  minZoom: 1,
   maxBounds: [
-    [89, -195],
-    [-89, 195]
+    [89, -250],
+    [-89, 250]
   ],
-  // worldCopyJump: true,
+  worldCopyJump: true,
   layers: [
     L.esri.basemapLayer('Gray'),
     L.esri.basemapLayer('GrayLabels'),
@@ -85,9 +65,11 @@ var map = L.map('map', {
   .on('zoomanim', function(e) {
     var currentZoom = map.getZoom(),
       futureZoom = e.zoom;
-
     toggleWorldwideLayer(currentZoom, futureZoom);
     updateParallaxZOffset(currentZoom, futureZoom);
+  })
+  .on('moveend', function() {
+    wrapMarkers(worldwideAircraftGroupLayer);
   });
 
 map.attributionControl.addAttribution('Aircraft data &copy; <a href="https://www.ADSBexchange.com" target="_blank">ADSBexchange</a>');
@@ -113,10 +95,6 @@ L.esri.Geocoding.geosearch({
 
 // initially display aircraft reporting their location around the world
 generateAircraftWorldwide();
-
-// setTimeout(function() {
-//   handleGeosearchOrClick(L.latLng(heathrowCoordinates));
-// }, 10000);
 
 function toggleWorldwideLayer(currentZoom, futureZoom) {
   var thresholdZoom = 7;
@@ -191,14 +169,10 @@ function handleGeosearchOrClick(latlng) {
     aircraftShadowGroupLayer.addTo(map);
   }
 
+  latlng = latlng.wrap();
+
   searchCircleLayer.setLatLng(latlng);
   map.flyToBounds(searchCircleLayer.getBounds());
-
-  // if (map.getBoundsZoom(searchCircleLayer.getBounds()) > map.getZoom()) {
-  //   map.flyToBounds(searchCircleLayer.getBounds());
-  // } else {
-  //   map.flyTo(latlng);
-  // }
 
   generateAircraftAtLatLng(latlng);
 }
@@ -235,9 +209,9 @@ function generateAircraftWorldwide() {
         });
 
       var summaryStatsHTML = [
-        '<p>',
+        '<p><span style="color: deepskyblue;">',
         aircraftList.length,
-        ' AIRCRAFT AROUND THE WORLD CURRENTLY REPORTING THEIR POSITION</p>',
+        '</span> AIRCRAFT AROUND THE WORLD CURRENTLY REPORTING THEIR POSITION</p>',
         '<p>CLICK ON THE MAP OR SEARCH FOR AN AIRPORT</p>'
       ].join('');
 
@@ -317,7 +291,7 @@ function generateAircraftAtLatLng(latlng) {
         helicopterCount,
         '</p><p>HIGHEST: ',
         highestAltitude,
-        ' ft</p><p>CLICK ON THE MAP OR SEARCH FOR AN AIRPORT</p>'
+        ' ft</p>'
       ].join('');
 
       aircraftSummaryNode.innerHTML = summaryStatsHTML;
@@ -373,4 +347,22 @@ function updateTerminator(terminator) {
   terminator.setLatLngs(newTerminator.getLatLngs());
   terminator.redraw();
   return terminator;
+}
+
+function wrapMarkers(groupLayer) {
+  // ensure that the point features will be drawn beyond +/-180 longitude
+  groupLayer.eachLayer(function(layer) {
+    var wrappedLatLng = wrapAroundLatLng(layer.getLatLng());
+    layer.setLatLng(wrappedLatLng);
+  });
+}
+
+function wrapAroundLatLng(latLng) {
+  var wrappedLatLng = latLng.clone();
+  var mapCenterLng = map.getCenter().lng;
+  var wrapAroundDiff = mapCenterLng - wrappedLatLng.lng;
+  if (wrapAroundDiff < -180 || wrapAroundDiff > 180) {
+    wrappedLatLng.lng += (Math.round(wrapAroundDiff / 360) * 360);
+  }
+  return wrappedLatLng;
 }

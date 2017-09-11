@@ -124,6 +124,7 @@ function toggleWorldwideLayer(currentZoom, futureZoom) {
       searchCircleLayer.remove();
       aircraftParallaxGroupLayer.remove();
       aircraftShadowGroupLayer.remove();
+      L.DomUtil.empty(aircraftNode);
     }
   } else {
     // when the map changes between other zoom levels:
@@ -238,6 +239,7 @@ function generateAircraftWorldwide() {
 
 function generateAircraftAtLatLng(latlng) {
   radarNode.classList.remove('off');
+  L.DomUtil.empty(aircraftNode);
   L.DomUtil.empty(aircraftSummaryNode);
 
   // remove all the previous aircraft from the map

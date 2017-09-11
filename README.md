@@ -6,6 +6,10 @@ Demos and experiments with LeafletJS
 
   - relies on aircraft tracking data from: https://www.adsbexchange.com/
 
-  - uses LeafletJS layer plugin **Leaflet.ParallaxMarker** (more specifically a custom fork): https://github.com/jwasilgeo/Leaflet.ParallaxMarker
+  - uses layer plugin **Leaflet.ParallaxMarker** (more specifically a custom fork): https://github.com/jwasilgeo/Leaflet.ParallaxMarker
+
+  - uses solar terminator **Leaflet.Terminator** plugin: https://github.com/joergdietrich/Leaflet.Terminator
 
 - ## [Night and Day](https://jwasilgeo.github.io/leaflet-experiments/night-and-day/)
+
+  - still a work in progress

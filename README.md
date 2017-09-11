@@ -10,6 +10,8 @@ Demos and experiments with LeafletJS
 
   - uses solar terminator **Leaflet.Terminator** plugin: https://github.com/joergdietrich/Leaflet.Terminator
 
+  - uses Esri basemap and geocoder via **Esri Leaflet**: http://esri.github.io/esri-leaflet/
+
 - ## [Night and Day](https://jwasilgeo.github.io/leaflet-experiments/night-and-day/)
 
   - still a work in progress

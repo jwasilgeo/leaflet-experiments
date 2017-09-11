@@ -73,6 +73,7 @@ var map = L.map('map', {
   });
 
 map.attributionControl.addAttribution('Aircraft data &copy; <a href="https://www.ADSBexchange.com" target="_blank">ADSBexchange</a>');
+map.attributionControl.addAttribution('<span class="a-bit-bigger">website by <a class="my-credit" href="https://twitter.com/JWasilGeo" target="_blank">@JWasilGeo</a></span>');
 
 L.esri.Geocoding.geosearch({
   placeholder: 'SEARCH FOR AN AIRPORT',

@@ -17,7 +17,7 @@ body, div, input {
 
 .info {
   position: absolute;
-  bottom: 25px;
+  bottom: 35px;
   right: 0;
   margin: 0 10px;
   z-index: 2000;
@@ -41,7 +41,7 @@ body, div, input {
 
 .radar {
   position: absolute;
-  bottom: 25px;
+  bottom: 35px;
   left: 25px;
   z-index: 2000;
   width: 0;
@@ -71,4 +71,13 @@ body, div, input {
 
 .leaflet-touch .geocoder-control.geocoder-control-expanded {
   width: 220px;
+}
+
+.a-bit-bigger {
+  font-size: 1.4em;
+}
+
+.my-credit {
+  font-weight: bold;
+  color: #FF005E !important;
 }

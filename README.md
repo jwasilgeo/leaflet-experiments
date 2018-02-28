@@ -2,7 +2,7 @@
 
 Demos and experiments with LeafletJS
 
-- ## [Aviation Tracker](https://jwasilgeo.github.io/leaflet-experiments/aviation/)
+## [Aviation Tracker](https://jwasilgeo.github.io/leaflet-experiments/aviation/)
 
   - relies on aircraft tracking data from: https://www.adsbexchange.com/
 
@@ -12,6 +12,9 @@ Demos and experiments with LeafletJS
 
   - uses Esri basemap and geocoder via **Esri Leaflet**: http://esri.github.io/esri-leaflet/
 
-- ## [Night and Day](https://jwasilgeo.github.io/leaflet-experiments/night-and-day/)
+## [Night and Day](https://jwasilgeo.github.io/leaflet-experiments/night-and-day/)
 
   - still a work in progress
+
+## Licensing
+A copy of the license is available in the repository's [LICENSE](./LICENSE.md) file.

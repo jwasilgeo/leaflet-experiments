@@ -24,13 +24,14 @@ body {
   justify-content: center;
   -webkit-align-items: center;
   align-items: center;
-  font-size: 4em;
+  font-size: 5em;
   font-weight: bold;
   line-height: 0;
   color: white;
+  text-shadow: 2px 2px 2px black, 2px 2px 2px black, 2px 2px 2px black;
 }
 
-.info {
+#solarInfo {
   position: absolute;
   bottom: 40px;
   width: 100%;
@@ -38,10 +39,13 @@ body {
   font-family: Courier New, Courier, monospace;
   text-align: center;
   color: white;
-  text-shadow: 1px 1px 2px black;
+  text-shadow: 2px 2px 2px black, 2px 2px 2px black, 2px 2px 2px black;
+  font-size: 1.3em;
+  font-weight: bold;
 }
 
-#solarInfo {
-  font-size: 1.25em;
+.author-credit {
+  font-size: 1.2em;
   font-weight: bold;
+  color: #FF005E !important;
 }

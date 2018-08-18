@@ -21,6 +21,8 @@
     "L": false,
     "turf": false,
     "SunCalc": false,
+    "spacetime": false,
+    "spacetimeGeo": false,
     "$": false
   }
 }

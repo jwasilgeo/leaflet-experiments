@@ -1,21 +1,19 @@
-var solarInfoNode = document.getElementById('solarInfo');
+var solarInfoNode = document.querySelector('#solarInfo');
 
 var daylightLayer = L.esri.basemapLayer('Imagery');
+
+spacetime.extend(spacetimeGeo);
 
 var terminator = L.terminator();
 
 var nighttimeLayer = generateNighttimeLayer(terminator);
 
 var map = L.map('map', {
-  center: [0, 180],
+  center: [27.5, 90.5],
   zoom: 2,
   minZoom: 1,
   maxZoom: 10,
   worldCopyJump: true,
-  maxBounds: [
-    [89, -Infinity],
-    [-89, Infinity]
-  ],
   layers: [
     daylightLayer,
     nighttimeLayer
@@ -23,6 +21,11 @@ var map = L.map('map', {
 })
   .once('layeradd', updateSolarInfo)
   .on('move', updateSolarInfo);
+  
+map.attributionControl.setPrefix(
+  map.attributionControl.options.prefix +
+  ' | Website by <a class="author-credit" href="https://twitter.com/JWasilGeo" target="_blank">@JWasilGeo</a>'
+);
 
 // top-most labels tile layer in a custom map pane
 map.createPane('labels');
@@ -48,7 +51,7 @@ function updateTerminator(terminator) {
 
 function updateNighttimeLayer(terminator, previousNighttimeLayer) {
   var nextNighttimeLayer = generateNighttimeLayer(terminator).addTo(map);
-  // sorta funky but visually effective way to remove the previous nighttime layer
+  // sorta funky, but visually effective way to remove the previous nighttime layer
   setTimeout(function() {
     previousNighttimeLayer.remove();
   }, 1000);
@@ -65,45 +68,43 @@ function generateNighttimeLayer(terminator) {
 }
 
 function updateSolarInfo(evt) {
-  var latLngCoordinates = evt.target.getCenter();
+  var latLngCoordinates = map.wrapLatLng(evt.target.getCenter());
+
   var sunTimes = SunCalc.getTimes(Date.now(), latLngCoordinates.lat, latLngCoordinates.lng);
-  var isNight = turf.booleanContains(L.terminator().toGeoJSON(), turf.point([latLngCoordinates.lng, latLngCoordinates.lat]));
+
+  var d = spacetime.now();
+  d.in({
+    lat: latLngCoordinates.lat,
+    lon: latLngCoordinates.lng
+  });
+
+  var currentLocalTime = [
+    'Currently:',
+    d.time(),
+    'in',
+    d.timezone().name,
+  ].join(' ');
+
+  var isNight = turf.booleanContains(
+    L.terminator().toGeoJSON(),
+    turf.point([latLngCoordinates.lng, latLngCoordinates.lat])
+  );
 
   if (isNight) {
     solarInfoNode.innerHTML = [
-      '<div>night is darkest at: ',
-      sunTimes.nadir.toLocaleTimeString(),
+      '<div>',
+      currentLocalTime,
+      '</div><div>Night is darkest at: ',
+      spacetime(sunTimes.nadir).goto(d.timezone().name).time(),
       '</div>'
     ].join('');
   } else {
     solarInfoNode.innerHTML = [
-      '<div>day is brightest at: ',
-      sunTimes.solarNoon.toLocaleTimeString(),
+      '<div>',
+      currentLocalTime,
+      '</div><div>Sun is highest at: ',
+      spacetime(sunTimes.solarNoon).goto(d.timezone().name).time(),
       '</div>'
     ].join('');
   }
 }
-
-/* 
-map.on('mousemove', function(evt) {
-  // var latLngCoordinates = evt.target.getCenter();
-  var latLngCoordinates = evt.latlng;
-
-  var sunPosition = SunCalc.getPosition(Date.now(), latLngCoordinates.lat, latLngCoordinates.lng);
-  var sunAltitudeDegrees = sunPosition.altitude * (180 / Math.PI);
-
-  var cutoff = 30;
-  var nighttimeLayerOpacity = 1;
-
-  if (sunAltitudeDegrees > 0) {
-    if (sunAltitudeDegrees <= cutoff) {
-      nighttimeLayerOpacity = 1 - (sunAltitudeDegrees / cutoff);
-    } else {
-      nighttimeLayerOpacity = 0;
-    }
-  }
-
-  nighttimeLayer.setOpacity(nighttimeLayerOpacity);
-  daylightLayer.setOpacity(1 - nighttimeLayerOpacity);
-});
- */

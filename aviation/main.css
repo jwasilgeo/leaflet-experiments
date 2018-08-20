@@ -41,9 +41,9 @@ body, div, input {
 
 .radar {
   position: absolute;
-  bottom: 35px;
-  left: 25px;
-  z-index: 2000;
+  bottom: calc(50% - 50px);
+  left: calc(50% - 50px);
+  z-index: 1000;
   width: 0;
   height: 0;
   border-radius: 50%;
@@ -57,7 +57,7 @@ body, div, input {
     opacity: 0.8;
   }
   50% {
-    opacity: 0.2;
+    opacity: 0.4;
   }
   100% {
     transform: rotate(360deg);
@@ -71,6 +71,12 @@ body, div, input {
 
 .leaflet-touch .geocoder-control.geocoder-control-expanded {
   width: 220px;
+}
+
+.geocoder-control-suggestions .geocoder-control-suggestion.geocoder-control-selected,
+.geocoder-control-suggestions .geocoder-control-suggestion:hover {
+    background: deepskyblue;
+    border-color: deepskyblue
 }
 
 .author-credit {

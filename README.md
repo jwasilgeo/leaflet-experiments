@@ -10,11 +10,13 @@ Demos and experiments with LeafletJS
 
 - Aircraft tracking data from https://www.adsbexchange.com/
 
-- [Leaflet.ParallaxMarker (jwasilgeo fork)](https://github.com/jwasilgeo/Leaflet.ParallaxMarker): parallax layer  originating from [@dagjomar's](https://github.com/dagjomar) awesome [Leaflet.ParallaxMarker](https://github.com/dagjomar/Leaflet.ParallaxMarker)
+- [Leaflet.ParallaxMarker (jwasilgeo fork)](https://github.com/jwasilgeo/Leaflet.ParallaxMarker): parallax layer originating from [@dagjomar's](https://github.com/dagjomar) awesome [Leaflet.ParallaxMarker](https://github.com/dagjomar/Leaflet.ParallaxMarker)
 
 - [Leaflet.Terminator](https://github.com/joergdietrich/Leaflet.Terminator): solar terminator layer
 
 - [Esri Leaflet](https://esri.github.io/esri-leaflet/): Esri gray basemap layer and geocoder widget
+
+- [Font Awesome](https://fontawesome.com/): "plane" icon used for the parallax layer symbol
 
 ## [Night and Day](https://jwasilgeo.github.io/leaflet-experiments/night-and-day/)
 

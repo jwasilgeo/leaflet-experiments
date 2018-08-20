@@ -59,7 +59,7 @@ function updateNighttimeLayer(terminator, previousNighttimeLayer) {
 }
 
 function generateNighttimeLayer(terminator) {
-  return L.TileLayer.boundaryCanvas('https://gibs.earthdata.nasa.gov/wmts-webmerc/VIIRS_CityLights_2012/default//GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpg', {
+  return L.TileLayer.boundaryCanvas('https://gibs-{s}.earthdata.nasa.gov/wmts-webmerc/VIIRS_CityLights_2012/default//GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpg', {
     attribution: 'Imagery provided by services from the Global Imagery Browse Services (GIBS), operated by the NASA/GSFC/Earth Science Data and Information System (<a href="https://earthdata.nasa.gov">ESDIS</a>) with funding provided by NASA/HQ.',
     boundary: terminator.toGeoJSON(),
     minNativeZoom: 1,
@@ -67,8 +67,8 @@ function generateNighttimeLayer(terminator) {
   });
 }
 
-function updateSolarInfo(evt) {
-  var latLngCoordinates = map.wrapLatLng(evt.target.getCenter());
+function updateSolarInfo(e) {
+  var latLngCoordinates = e.target.getCenter().wrap();
 
   var sunTimes = SunCalc.getTimes(Date.now(), latLngCoordinates.lat, latLngCoordinates.lng);
 

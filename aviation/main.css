@@ -73,11 +73,8 @@ body, div, input {
   width: 220px;
 }
 
-.a-bit-bigger {
-  font-size: 1.4em;
-}
-
-.my-credit {
+.author-credit {
+  font-size: 1.3em;
   font-weight: bold;
   color: #FF005E !important;
 }

@@ -17,13 +17,19 @@ var searchCircleLayer = L.circle(heathrowCoordinates, {
 
 var terminator = L.terminator({
   stroke: false,
-  fillOpacity: 0.05,
+  fillOpacity: 0.4,
   interactive: false
 });
 
 // aircraft marker group layers
 var aircraftParallaxGroupLayer = L.featureGroup()
   .on('click mouseover', function(e) {
+    aircraftParallaxGroupLayer.eachLayer(function(layer) {
+      layer.getElement().style.color = '';
+    });
+
+    e.layer.getElement().style.color = 'deepskyblue';
+
     aircraftNode.innerHTML = [
       '<p>',
       e.layer._aircraftProperties.Mdl,
@@ -31,9 +37,6 @@ var aircraftParallaxGroupLayer = L.featureGroup()
       e.layer._aircraftProperties.Alt || '---',
       ' ft</p><hr>'
     ].join('');
-  })
-  .on('mouseout', function() {
-    L.DomUtil.empty(aircraftNode);
   });
 
 var aircraftShadowGroupLayer = L.featureGroup();
@@ -73,7 +76,11 @@ var map = L.map('map', {
   });
 
 map.attributionControl.addAttribution('Aircraft data &copy; <a href="https://www.ADSBexchange.com" target="_blank">ADSBexchange</a>');
-map.attributionControl.addAttribution('<span class="a-bit-bigger">website by <a class="my-credit" href="https://twitter.com/JWasilGeo" target="_blank">@JWasilGeo</a></span>');
+
+map.attributionControl.setPrefix(
+  map.attributionControl.options.prefix +
+  ' | Website by <a class="author-credit" href="https://twitter.com/JWasilGeo" target="_blank">@JWasilGeo</a>'
+);
 
 L.esri.Geocoding.geosearch({
   placeholder: 'SEARCH FOR AN AIRPORT',
@@ -211,10 +218,10 @@ function generateAircraftWorldwide() {
         });
 
       var summaryStatsHTML = [
-        '<p><span style="color: deepskyblue;">',
+        '<p><span style="color: deepskyblue; font-size: 1.3em; font-weight: bold;">',
         aircraftList.length,
         '</span> AIRCRAFT AROUND THE WORLD CURRENTLY REPORTING THEIR POSITION</p>',
-        '<p>CLICK ON THE MAP OR SEARCH FOR AN AIRPORT</p>'
+        '<p style="font-style: italic;">CLICK ON THE MAP OR SEARCH FOR AN AIRPORT</p>'
       ].join('');
 
       aircraftSummaryNode.innerHTML = summaryStatsHTML;
@@ -301,7 +308,7 @@ function generateAircraftAtLatLng(latlng) {
 
       aircraftList.forEach(function(aircraftProperties) {
         // use Font Awesome's "fa-plane" icon for now
-        // http://fontawesome.io/icon/plane/
+        // https://fontawesome.com/icons/plane?style=solid
 
         // show the aircraft in the sky using the parallax plugin
         var parallaxMarker = L.Marker.parallax(
@@ -312,7 +319,7 @@ function generateAircraftAtLatLng(latlng) {
             parallaxZoffset: aircraftProperties.Alt / 10, // use the altitude for the parallax z-offset value
             icon: L.divIcon({
               className: 'leaflet-marker-icon leaflet-zoom-animated leaflet-interactive',
-              html: '<i class="fa fa-plane fa-2x" style="transform:rotate(calc(-45deg + ' + aircraftProperties.Trak + 'deg)) scale(' + Math.max(1, aircraftProperties.Alt / 10500) + ')" aria-hidden="true"></i>'
+              html: '<i class="fas fa-plane fa-2x" style="transform:rotate(calc(-45deg + ' + aircraftProperties.Trak + 'deg)) scale(' + Math.max(1, aircraftProperties.Alt / 10500) + ')" aria-hidden="true"></i>'
             })
           }
         );
@@ -328,7 +335,7 @@ function generateAircraftAtLatLng(latlng) {
           }, {
             icon: L.divIcon({
               className: 'leaflet-marker-icon leaflet-zoom-animated',
-              html: '<i class="fa fa-plane fa-2x shadow" style="transform:rotate(calc(-45deg + ' + aircraftProperties.Trak + 'deg))" aria-hidden="true"></i>'
+              html: '<i class="fas fa-plane fa-2x shadow" style="transform:rotate(calc(-45deg + ' + aircraftProperties.Trak + 'deg))" aria-hidden="true"></i>'
             }),
             interactive: false,
             pane: 'shadowPane'

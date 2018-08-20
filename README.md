@@ -2,14 +2,14 @@
 
 Demos and experiments with LeafletJS
 
-## [Aviation Tracker](https://jwasilgeo.github.io/leaflet-experiments/aviation/)
+## [Aviation Tracker](https://jwasilgeo.github.io/leaflet-experiments/aviation/) with ADS-B Exchange Data
+
+### Read all about it at [**FlowingData: Aviation tracker with depth**](https://flowingdata.com/2017/09/15/aviation-tracker-with-depth/)!
 
 [![screenshot](https://raw.githubusercontent.com/jwasilgeo/leaflet-experiments/master/aviation/aviation-tracker-screenshot.png)](https://jwasilgeo.github.io/leaflet-experiments/aviation/)
 
-- As seen on [**FlowingData: Aviation tracker with depth**](https://flowingdata.com/2017/09/15/aviation-tracker-with-depth/) (woohoo!)
-
 - Aircraft tracking data from https://www.adsbexchange.com/
-
+ ADSBexchange
 - [Leaflet.ParallaxMarker (jwasilgeo fork)](https://github.com/jwasilgeo/Leaflet.ParallaxMarker): parallax layer originating from [@dagjomar's](https://github.com/dagjomar) awesome [Leaflet.ParallaxMarker](https://github.com/dagjomar/Leaflet.ParallaxMarker)
 
 - [Leaflet.Terminator](https://github.com/joergdietrich/Leaflet.Terminator): solar terminator layer

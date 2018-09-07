@@ -1,6 +1,6 @@
 # leaflet-experiments
 
-Demos and experiments with LeafletJS
+Demos and experiments with [LeafletJS](https://leafletjs.com/). Also check out my [Esri experiments](https://github.com/jwasilgeo/esri-experiments).
 
 ## [Aviation Tracker](https://jwasilgeo.github.io/leaflet-experiments/aviation/) with ADS-B Exchange Data
 

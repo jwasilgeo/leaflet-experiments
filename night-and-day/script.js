@@ -59,7 +59,7 @@ function updateNighttimeLayer(terminator, previousNighttimeLayer) {
 }
 
 function generateNighttimeLayer(terminator) {
-  return L.TileLayer.boundaryCanvas('https://gibs-{s}.earthdata.nasa.gov/wmts-webmerc/VIIRS_CityLights_2012/default//GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpg', {
+  return L.TileLayer.boundaryCanvas('https://gibs-{s}.earthdata.nasa.gov/wmts/epsg3857/best/VIIRS_Black_Marble/default/2016-01-01/GoogleMapsCompatible_Level8/{z}/{y}/{x}.png', {
     attribution: 'Imagery provided by services from the Global Imagery Browse Services (GIBS), operated by the NASA/GSFC/Earth Science Data and Information System (<a href="https://earthdata.nasa.gov">ESDIS</a>) with funding provided by NASA/HQ.',
     boundary: terminator.toGeoJSON(),
     minNativeZoom: 1,

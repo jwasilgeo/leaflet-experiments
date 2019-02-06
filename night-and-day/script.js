@@ -19,12 +19,14 @@ var map = L.map('map', {
     nighttimeLayer
   ]
 })
-  .once('layeradd', updateSolarInfo)
+  .on('layeradd', updateSolarInfo)
   .on('move', updateSolarInfo);
-  
+
+map.zoomControl.setPosition('bottomleft');
+
 map.attributionControl.setPrefix(
-  map.attributionControl.options.prefix +
-  ' | Website by <a class="author-credit" href="https://twitter.com/JWasilGeo" target="_blank">@JWasilGeo</a>'
+  '<span class="author-credit"><a href="https://twitter.com/JWasilGeo" target="_blank">@JWasilGeo</a></span> | ' +
+  map.attributionControl.options.prefix
 );
 
 // top-most labels tile layer in a custom map pane
@@ -36,11 +38,11 @@ L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_only_labels
   pane: 'labels'
 }).addTo(map);
 
-// update the terminator and nighttime layer every 5 seconds
+// update the terminator and nighttime layer every 10 seconds
 setInterval(function() {
   terminator = updateTerminator(terminator);
   nighttimeLayer = updateNighttimeLayer(terminator, nighttimeLayer);
-}, 5000);
+}, 10000);
 
 function updateTerminator(terminator) {
   var newTerminator = L.terminator();
@@ -54,7 +56,7 @@ function updateNighttimeLayer(terminator, previousNighttimeLayer) {
   // sorta funky, but visually effective way to remove the previous nighttime layer
   setTimeout(function() {
     previousNighttimeLayer.remove();
-  }, 1000);
+  }, 5000);
   return nextNighttimeLayer;
 }
 
@@ -72,14 +74,14 @@ function updateSolarInfo(e) {
 
   var sunTimes = SunCalc.getTimes(Date.now(), latLngCoordinates.lat, latLngCoordinates.lng);
 
-  var d = spacetime.now();
-  d.in({
-    lat: latLngCoordinates.lat,
-    lon: latLngCoordinates.lng
-  });
+  var d = spacetime
+    .now()
+    .in({
+      lat: latLngCoordinates.lat,
+      lon: latLngCoordinates.lng
+    });
 
   var currentLocalTime = [
-    'Currently:',
     d.time(),
     'in',
     d.timezone().name,
@@ -92,17 +94,17 @@ function updateSolarInfo(e) {
 
   if (isNight) {
     solarInfoNode.innerHTML = [
-      '<div>',
+      '<h1>Night and Day</h1><div>',
       currentLocalTime,
-      '</div><div>Night is darkest at: ',
+      '</div><div>Night is darkest at ',
       spacetime(sunTimes.nadir).goto(d.timezone().name).time(),
       '</div>'
     ].join('');
   } else {
     solarInfoNode.innerHTML = [
-      '<div>',
+      '<h1>Day and Night</h1><div>',
       currentLocalTime,
-      '</div><div>Sun is highest at: ',
+      '</div><div>Sun is highest at ',
       spacetime(sunTimes.solarNoon).goto(d.timezone().name).time(),
       '</div>'
     ].join('');

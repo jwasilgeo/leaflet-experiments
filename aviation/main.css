@@ -80,7 +80,10 @@ body, div, input {
 }
 
 .author-credit {
-  font-size: 1.3em;
+  font-size: 1.4em;
   font-weight: bold;
+}
+
+.author-credit a {
   color: #FF005E !important;
 }

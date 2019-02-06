@@ -4,6 +4,8 @@ var heathrowCoordinates = [51.4594, -0.4414],
   helicopterSpeciesId = 4,
   aircraftNode = document.querySelector('#aircraft'),
   aircraftSummaryNode = document.querySelector('#aircraftSummary'),
+  aggregateSummaryStatsHTML,
+  localSummaryStatsHTML,
   radarNode = document.querySelector('.radar');
 
 // search circle
@@ -82,8 +84,8 @@ var map = L.map('map', {
 map.attributionControl.addAttribution('Aircraft data &copy; <a href="https://www.ADSBexchange.com" target="_blank">ADSBexchange</a>');
 
 map.attributionControl.setPrefix(
-  map.attributionControl.options.prefix +
-  ' | Website by <a class="author-credit" href="https://twitter.com/JWasilGeo" target="_blank">@JWasilGeo</a>'
+  '<span class="author-credit"><a href="https://twitter.com/JWasilGeo" target="_blank">@JWasilGeo</a></span> | ' +
+  map.attributionControl.options.prefix
 );
 
 L.esri.Geocoding.geosearch({
@@ -109,8 +111,8 @@ L.esri.Geocoding.geosearch({
 generateAircraftWorldwide();
 
 function toggleWorldwideLayer(oldZoom, newZoom) {
-  var thresholdZoom = 7;
-  if (oldZoom < newZoom && newZoom === thresholdZoom) {
+  var thresholdZoom = 6;
+  if (oldZoom < newZoom && newZoom >= thresholdZoom) {
     // zooming in and past a threshold
     //  - hide worldwide layer
     //  - show aircraft related layers
@@ -123,7 +125,9 @@ function toggleWorldwideLayer(oldZoom, newZoom) {
       aircraftParallaxGroupLayer.addTo(map);
       aircraftShadowGroupLayer.addTo(map);
     }
-  } else if (oldZoom > newZoom && oldZoom === thresholdZoom) {
+
+    aircraftSummaryNode.innerHTML = localSummaryStatsHTML || aggregateSummaryStatsHTML;
+  } else if (oldZoom > newZoom && newZoom <= thresholdZoom) {
     // zooming out and past a threshold
     //  - show worldwide layer
     //  - hide aircraft related layers
@@ -137,6 +141,8 @@ function toggleWorldwideLayer(oldZoom, newZoom) {
       aircraftShadowGroupLayer.remove();
       L.DomUtil.empty(aircraftNode);
     }
+
+    aircraftSummaryNode.innerHTML = aggregateSummaryStatsHTML;
   }
 }
 
@@ -146,14 +152,14 @@ function updateParallaxZOffset(oldZoom, newZoom) {
   }
 
   var thresholdZoom = 10;
-  if (oldZoom < newZoom && newZoom === thresholdZoom) {
+  if (oldZoom < newZoom && newZoom >= thresholdZoom) {
     // zooming in and past a threshold:
     //  - when the map's current zoom level is going to be greater than or equal to 10
     //    use a smaller parallaxZoffset (aircraft altitude divided by 90)
     aircraftParallaxGroupLayer.eachLayer(function(layer) {
       layer.options.parallaxZoffset = layer._aircraftProperties.Alt / 90;
     });
-  } else if (oldZoom > newZoom && oldZoom === thresholdZoom) {
+  } else if (oldZoom > newZoom && newZoom <= thresholdZoom) {
     // zooming out and past a threshold:
     //  - when the map's current zoom level is going to be less than 10
     //    revert to the original parallaxZoffset (aircraft altitude divided by 10)
@@ -213,14 +219,14 @@ function generateAircraftWorldwide() {
           return aircraftA.Alt - aircraftB.Alt;
         });
 
-      var summaryStatsHTML = [
+      aggregateSummaryStatsHTML = [
         '<p><span style="color: deepskyblue; font-size: 1.3em; font-weight: bold;">',
         aircraftList.length,
         '</span> AIRCRAFT AROUND THE WORLD CURRENTLY REPORTING THEIR POSITION</p>',
         '<p style="font-style: italic;">CLICK ON THE MAP OR SEARCH FOR AN AIRPORT</p>'
       ].join('');
 
-      aircraftSummaryNode.innerHTML = summaryStatsHTML;
+      aircraftSummaryNode.innerHTML = aggregateSummaryStatsHTML;
 
       aircraftList.forEach(function(aircraft) {
         var simpleCircleMarker = L.circleMarker([aircraft.Lat, aircraft.Long], {
@@ -292,7 +298,7 @@ function generateAircraftAtLatLng(latlng) {
           return Math.max(previousValue, currentValue);
         }, 0);
 
-      var summaryStatsHTML = [
+      localSummaryStatsHTML = [
         '<p>AIRPLANES: ',
         airplaneCount,
         '</p><p>HELICOPTERS: ',
@@ -302,7 +308,7 @@ function generateAircraftAtLatLng(latlng) {
         ' ft</p>'
       ].join('');
 
-      aircraftSummaryNode.innerHTML = summaryStatsHTML;
+      aircraftSummaryNode.innerHTML = localSummaryStatsHTML;
 
       aircraftList.forEach(function(aircraftProperties) {
         // use Font Awesome's "fa-plane" icon for now

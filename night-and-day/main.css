@@ -9,6 +9,7 @@ body {
   bottom: 0;
   right: 0;
   left: 0;
+  background-color: black;
 }
 
 .crosshairs {
@@ -33,7 +34,7 @@ body {
 
 #solarInfo {
   position: absolute;
-  bottom: 40px;
+  top: 10px;
   width: 100%;
   z-index: 2000;
   font-family: Courier New, Courier, monospace;
@@ -44,8 +45,17 @@ body {
   font-weight: bold;
 }
 
+#solarInfo h1 {
+  margin: 0 0 0.15em;
+  font-size: 1.6em;
+  font-weight: normal;
+}
+
 .author-credit {
-  font-size: 1.3em;
+  font-size: 1.4em;
   font-weight: bold;
+}
+
+.author-credit a {
   color: #FF005E !important;
 }

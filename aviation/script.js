@@ -18,6 +18,8 @@ var terminator = L.terminator({
 // aircraft marker group layers
 var aircraftParallaxGroupLayer = L.featureGroup()
   .on('click mouseover', function(e) {
+    // TODO: need to track witch parallaxMarker was interacted with b/c currently it gets reset after a map move
+
     aircraftParallaxGroupLayer.eachLayer(function(layer) {
       if (map.hasLayer(layer)) {
         layer.getElement().style.color = '';
@@ -71,10 +73,11 @@ var map = L.map('map', {
     filterParallaxAircraftAtCurrentMapBounds();
   });
 
-map.attributionControl.addAttribution('Aircraft data &copy; <a href="https://www.opensky-network.org/" target="_blank">The OpenSky Network</a>');
+// map.attributionControl.addAttribution('Aircraft data provided by <span style="font-weight: bold;">The OpenSky Network</span> <a href="https://www.opensky-network.org/" target="_blank">https://www.opensky-network.org</a>');
 
 map.attributionControl.setPrefix(
   '<span class="author-credit"><a href="https://twitter.com/JWasilGeo" target="_blank">@JWasilGeo</a></span> | ' +
+  'Aircraft data provided by <span style="font-weight: bold;">The OpenSky Network</span> <a href="https://www.opensky-network.org" target="_blank">https://www.opensky-network.org</a> | ' +
   map.attributionControl.options.prefix
 );
 
@@ -94,7 +97,7 @@ L.esri.Geocoding.geosearch({
 })
   .on('results', function(data) {
     if (data.results.length) {
-      map.fitBounds(data.results[0].bounds.pad(3));
+      map.fitBounds(data.results[0].bounds.pad(5));
     }
   })
   .addTo(map);
@@ -214,7 +217,7 @@ function generateAircraftWorldwide() {
         '<p><span style="color: deepskyblue; font-size: 1.3em; font-weight: bold;">',
         aircraftList.length,
         '</span> AIRCRAFT AROUND THE WORLD CURRENTLY REPORTING THEIR POSITION</p>',
-        '<p style="font-style: italic;">ZOOM IN OR SEARCH FOR AN AIRPORT</p>'
+        '<p style="font-style: italic; color: deepskyblue;">ZOOM IN OR SEARCH FOR AN AIRPORT</p>'
       ].join('');
 
       aircraftSummaryNode.innerHTML = aggregateSummaryStatsHTML;

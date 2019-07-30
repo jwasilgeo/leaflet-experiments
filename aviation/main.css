@@ -20,18 +20,27 @@ body, div, input {
   bottom: 35px;
   right: 0;
   margin: 0 10px;
-  z-index: 2000;
+  z-index: 400;
   min-width: 185px;
   font-size: 1.1em;
   text-align: center;
   user-select: none;
   cursor: default;
   padding: 0 10px;
-  background-color: rgba(255, 255, 255, 0.7)
+  background-color: rgba(255, 255, 255, 0.9)
 }
 
 .info p {
   margin: 10px 0;
+}
+
+.instructions {
+  font-style: italic;
+}
+
+.esri-truncated-attribution:hover {
+  white-space: normal;
+  background-color: whitesmoke;
 }
 
 .shadow {
@@ -41,13 +50,13 @@ body, div, input {
 
 .radar {
   position: absolute;
-  bottom: calc(50% - 50px);
-  left: calc(50% - 50px);
+  bottom: calc(50% - 75px);
+  left: calc(50% - 75px);
   z-index: 1000;
   width: 0;
   height: 0;
   border-radius: 50%;
-  border: 50px solid rgba(0, 0, 0, 0);
+  border: 75px solid rgba(0, 0, 0, 0);
   border-top-color: deepskyblue;
   animation: radar-rotate 1.5s ease-in-out infinite;
 }
@@ -57,7 +66,7 @@ body, div, input {
     opacity: 0.8;
   }
   50% {
-    opacity: 0.4;
+    opacity: 0.3;
   }
   100% {
     transform: rotate(360deg);
@@ -79,11 +88,12 @@ body, div, input {
     border-color: deepskyblue
 }
 
-.author-credit {
+.custom-credit {
   font-size: 1.4em;
   font-weight: bold;
 }
 
-.author-credit a {
+.author-credit {
   color: #FF005E !important;
+  text-decoration: underline !important;
 }

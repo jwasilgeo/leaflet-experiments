@@ -1,21 +1,13 @@
-var heathrowCoordinates = [51.4594, -0.4414],
-  searchSizeM = 200000, // meters
-  airplaneSpeciesIds = [0, 1, 2, 3, 5, 6],
-  helicopterSpeciesId = 4,
-  aircraftNode = document.querySelector('#aircraft'),
+var aircraftNode = document.querySelector('#aircraft'),
   aircraftSummaryNode = document.querySelector('#aircraftSummary'),
   aggregateSummaryStatsHTML,
   localSummaryStatsHTML,
-  radarNode = document.querySelector('.radar');
-
-// search circle
-var searchCircleLayer = L.circle(heathrowCoordinates, {
-  radius: searchSizeM, // meters
-  weight: 1,
-  color: 'deepskyblue',
-  fillOpacity: 0,
-  interactive: false
-});
+  radarNode = document.querySelector('.radar'),
+  currentAjax = null,
+  currentAircraftMarkers = {
+    parallax: [],
+    shadow: []
+  };
 
 var terminator = L.terminator({
   stroke: false,
@@ -27,16 +19,18 @@ var terminator = L.terminator({
 var aircraftParallaxGroupLayer = L.featureGroup()
   .on('click mouseover', function(e) {
     aircraftParallaxGroupLayer.eachLayer(function(layer) {
-      layer.getElement().style.color = '';
+      if (map.hasLayer(layer)) {
+        layer.getElement().style.color = '';
+      }
     });
 
     e.layer.getElement().style.color = 'deepskyblue';
 
     aircraftNode.innerHTML = [
       '<p>',
-      e.layer._aircraftProperties.Mdl,
+      e.layer._aircraft[1] + ' ' + e.layer._aircraft[2],
       '</p><p>',
-      e.layer._aircraftProperties.Alt || '---',
+      e.layer._aircraft[13] || '---',
       ' ft</p><hr>'
     ].join('');
   });
@@ -60,16 +54,11 @@ var map = L.map('map', {
     L.esri.basemapLayer('Gray'),
     L.esri.basemapLayer('GrayLabels'),
     terminator,
-    aircraftShadowGroupLayer,
-    aircraftParallaxGroupLayer,
     worldwideAircraftGroupLayer
   ],
   preferCanvas: true
 })
-  .on('click', function(e) {
-    handleGeosearchOrClick(e.latlng);
-  })
-  .on('zoomstart', function(e) {
+  .on('zoomstart', function() {
     oldZoom = map.getZoom();
   })
   .on('zoom', function() {
@@ -79,20 +68,22 @@ var map = L.map('map', {
   })
   .on('moveend', function() {
     wrapMarkers(worldwideAircraftGroupLayer);
+    filterParallaxAircraftAtCurrentMapBounds();
   });
 
-map.attributionControl.addAttribution('Aircraft data &copy; <a href="https://www.ADSBexchange.com" target="_blank">ADSBexchange</a>');
-
 map.attributionControl.setPrefix(
-  '<span class="author-credit"><a href="https://twitter.com/JWasilGeo" target="_blank">@JWasilGeo</a></span> | ' +
+  '<a class="custom-credit author-credit" href="https://twitter.com/JWasilGeo" target="_blank">@JWasilGeo</a> | ' +
+  'Aircraft data provided by <span class="custom-credit">The OpenSky Network</span> <a href="https://www.opensky-network.org" target="_blank">https://www.opensky-network.org</a> | ' +
   map.attributionControl.options.prefix
 );
 
 L.esri.Geocoding.geosearch({
-  placeholder: 'SEARCH FOR AN AIRPORT',
+  placeholder: 'Search for an airport',
+  title: 'Airport location search',
   position: 'topright',
-  collapseAfterResult: false,
   expanded: true,
+  collapseAfterResult: false,
+  useMapBounds: false,
   zoomToResult: false,
   providers: [
     L.esri.Geocoding.arcgisOnlineProvider({
@@ -102,7 +93,7 @@ L.esri.Geocoding.geosearch({
 })
   .on('results', function(data) {
     if (data.results.length) {
-      handleGeosearchOrClick(data.results[0].latlng);
+      map.fitBounds(data.results[0].bounds.pad(5));
     }
   })
   .addTo(map);
@@ -111,7 +102,7 @@ L.esri.Geocoding.geosearch({
 generateAircraftWorldwide();
 
 function toggleWorldwideLayer(oldZoom, newZoom) {
-  var thresholdZoom = 6;
+  var thresholdZoom = 7;
   if (oldZoom < newZoom && newZoom >= thresholdZoom) {
     // zooming in and past a threshold
     //  - hide worldwide layer
@@ -120,11 +111,12 @@ function toggleWorldwideLayer(oldZoom, newZoom) {
       worldwideAircraftGroupLayer.remove();
     }
 
-    if (!map.hasLayer(searchCircleLayer)) {
-      searchCircleLayer.addTo(map);
+    if (!map.hasLayer(aircraftParallaxGroupLayer)) {
       aircraftParallaxGroupLayer.addTo(map);
       aircraftShadowGroupLayer.addTo(map);
     }
+
+    aircraftNode.innerHTML = '<p class="instructions">Interact with aircraft to learn more.</p><hr>';
 
     aircraftSummaryNode.innerHTML = localSummaryStatsHTML || aggregateSummaryStatsHTML;
   } else if (oldZoom > newZoom && newZoom <= thresholdZoom) {
@@ -135,8 +127,7 @@ function toggleWorldwideLayer(oldZoom, newZoom) {
       worldwideAircraftGroupLayer.addTo(map);
     }
 
-    if (map.hasLayer(searchCircleLayer)) {
-      searchCircleLayer.remove();
+    if (map.hasLayer(aircraftParallaxGroupLayer)) {
       aircraftParallaxGroupLayer.remove();
       aircraftShadowGroupLayer.remove();
       L.DomUtil.empty(aircraftNode);
@@ -147,45 +138,22 @@ function toggleWorldwideLayer(oldZoom, newZoom) {
 }
 
 function updateParallaxZOffset(oldZoom, newZoom) {
-  if (!map.hasLayer(searchCircleLayer)) {
-    return;
-  }
-
   var thresholdZoom = 10;
   if (oldZoom < newZoom && newZoom >= thresholdZoom) {
     // zooming in and past a threshold:
     //  - when the map's current zoom level is going to be greater than or equal to 10
     //    use a smaller parallaxZoffset (aircraft altitude divided by 90)
     aircraftParallaxGroupLayer.eachLayer(function(layer) {
-      layer.options.parallaxZoffset = layer._aircraftProperties.Alt / 90;
+      layer.options.parallaxZoffset = layer._aircraft[13] / 90;
     });
   } else if (oldZoom > newZoom && newZoom <= thresholdZoom) {
     // zooming out and past a threshold:
     //  - when the map's current zoom level is going to be less than 10
     //    revert to the original parallaxZoffset (aircraft altitude divided by 10)
     aircraftParallaxGroupLayer.eachLayer(function(layer) {
-      layer.options.parallaxZoffset = layer._aircraftProperties.Alt / 10;
+      layer.options.parallaxZoffset = layer._aircraft[13] / 10;
     });
   }
-}
-
-function handleGeosearchOrClick(latlng) {
-  if (map.hasLayer(worldwideAircraftGroupLayer)) {
-    worldwideAircraftGroupLayer.remove();
-  }
-
-  if (!map.hasLayer(searchCircleLayer)) {
-    searchCircleLayer.addTo(map);
-    aircraftParallaxGroupLayer.addTo(map);
-    aircraftShadowGroupLayer.addTo(map);
-  }
-
-  latlng = latlng.wrap();
-
-  searchCircleLayer.setLatLng(latlng);
-  map.fitBounds(searchCircleLayer.getBounds());
-
-  generateAircraftAtLatLng(latlng);
 }
 
 function generateAircraftWorldwide() {
@@ -193,43 +161,66 @@ function generateAircraftWorldwide() {
 
   // remove all the previous aircraft from the map
   worldwideAircraftGroupLayer.clearLayers();
+  aircraftParallaxGroupLayer.clearLayers();
+  aircraftShadowGroupLayer.clearLayers();
 
-  $.ajax({
-    url: 'https://public-api.adsbexchange.com/VirtualRadar/AircraftList.json',
-    data: {
-      fNBnd: 89,
-      fSBnd: -89,
-      fWBnd: -179.99,
-      fEBnd: 179.99
-    },
-    dataType: 'jsonp'
+  if (currentAjax) {
+    currentAjax.abort('stopped early');
+    currentAjax = null;
+  }
+
+  currentAjax = $.ajax({
+    url: 'https://opensky-network.org/api/states/all',
+    dataType: 'json'
   })
     .done(function(response) {
+      if (currentAjax) {
+        currentAjax = null;
+      }
+
+      // TODO: repeat with interval?
+      // setTimeout(generateAircraftWorldwide, 10000);
+
       radarNode.classList.add('off');
 
       updateTerminator(terminator);
 
-      var aircraftList = response.acList
+      if (!response.states) {
+        return;
+      }
+
+      var aircraftList = response.states
         .filter(function(aircraft) {
-          // ignore aircraft that are reporting themselves to be on the ground
-          return !aircraft.Gnd;
+          // ignore aircraft that are reporting themselves to be on the ground [8]
+          // or are missing important attributes such as an altitude [13], longitude [5], and latitude [6]
+          if (
+            !aircraft[8] &&
+            aircraft[13] &&
+            (aircraft[5] && aircraft[6])
+          ) {
+            // convert meters to feet
+            aircraft[13] = Math.round(aircraft[13] * 3.28084);
+
+            return aircraft;
+          }
         })
         .sort(function(aircraftA, aircraftB) {
           // sort ascending by altitude
-          return aircraftA.Alt - aircraftB.Alt;
+          return aircraftA[13] - aircraftB[13];
         });
 
       aggregateSummaryStatsHTML = [
-        '<p><span style="color: deepskyblue; font-size: 1.3em; font-weight: bold;">',
+        '<p><span style="font-size: 1.35em; font-weight: bold;">',
         aircraftList.length,
-        '</span> AIRCRAFT AROUND THE WORLD CURRENTLY REPORTING THEIR POSITION</p>',
-        '<p style="font-style: italic;">CLICK ON THE MAP OR SEARCH FOR AN AIRPORT</p>'
+        '</span> aircraft around the world are currently reporting their position.</p>',
+        '<p class="instructions">Zoom in or search for an airport.</p>'
       ].join('');
 
       aircraftSummaryNode.innerHTML = aggregateSummaryStatsHTML;
 
       aircraftList.forEach(function(aircraft) {
-        var simpleCircleMarker = L.circleMarker([aircraft.Lat, aircraft.Long], {
+        // var simpleCircleMarker = L.circleMarker([aircraft.Lat, aircraft.Long], {
+        var simpleCircleMarker = L.circleMarker([aircraft[6], aircraft[5]], {
           radius: 2, // pixels,
           interactive: false,
           stroke: false,
@@ -237,123 +228,104 @@ function generateAircraftWorldwide() {
           fillColor: 'deepskyblue'
         });
 
-        worldwideAircraftGroupLayer.addLayer(simpleCircleMarker);
-      });
-    })
-    .fail(function(error) {
-      radarNode.classList.add('off');
-      console.error(error);
-    });
-}
-
-function generateAircraftAtLatLng(latlng) {
-  radarNode.classList.remove('off');
-  L.DomUtil.empty(aircraftNode);
-  L.DomUtil.empty(aircraftSummaryNode);
-
-  // remove all the previous aircraft from the map
-  aircraftParallaxGroupLayer.clearLayers();
-  aircraftShadowGroupLayer.clearLayers();
-
-  var latlng = latlng.wrap();
-
-  $.ajax({
-    url: 'https://public-api.adsbexchange.com/VirtualRadar/AircraftList.json',
-    data: {
-      lat: latlng.lat,
-      lng: latlng.lng,
-      fDstL: 0,
-      fDstU: (searchSizeM / 1000), // km
-    },
-    dataType: 'jsonp'
-  })
-    .done(function(response) {
-      radarNode.classList.add('off');
-
-      updateTerminator(terminator);
-
-      var aircraftList = response.acList
-        .filter(function(aircraft) {
-          // ignore aircraft that are reporting themselves to be on the ground
-          return !aircraft.Gnd;
-        })
-        .sort(function(aircraftA, aircraftB) {
-          // sort ascending by altitude
-          return aircraftA.Alt - aircraftB.Alt;
-        });
-
-      var airplaneCount = aircraftList.filter(function(aircraft) {
-        return airplaneSpeciesIds.indexOf(aircraft.Species) > -1;
-      }).length;
-
-      var helicopterCount = aircraftList.filter(function(aircraft) {
-        return aircraft.Species === helicopterSpeciesId;
-      }).length;
-
-      var highestAltitude = aircraftList
-        .map(function(aircraft) {
-          return aircraft.Alt || 0;
-        })
-        .reduce(function(previousValue, currentValue) {
-          return Math.max(previousValue, currentValue);
-        }, 0);
-
-      localSummaryStatsHTML = [
-        '<p>AIRPLANES: ',
-        airplaneCount,
-        '</p><p>HELICOPTERS: ',
-        helicopterCount,
-        '</p><p>HIGHEST: ',
-        highestAltitude,
-        ' ft</p>'
-      ].join('');
-
-      aircraftSummaryNode.innerHTML = localSummaryStatsHTML;
-
-      aircraftList.forEach(function(aircraftProperties) {
-        // use Font Awesome's "fa-plane" icon for now
+        // use Font Awesome's "fa-plane" icon
         // https://fontawesome.com/icons/plane?style=solid
 
-        // show the aircraft in the sky using the parallax plugin
+        // when zoomed in, show the aircraft in the sky using the parallax plugin
         var parallaxMarker = L.Marker.parallax(
           {
-            lat: aircraftProperties.Lat,
-            lng: aircraftProperties.Long
+            lat: aircraft[6],
+            lng: aircraft[5]
           }, {
-            parallaxZoffset: aircraftProperties.Alt / 10, // use the altitude for the parallax z-offset value
+            parallaxZoffset: aircraft[13] / 10, // use the altitude for the parallax z-offset value
             icon: L.divIcon({
               className: 'leaflet-marker-icon leaflet-zoom-animated leaflet-interactive',
-              html: '<i class="fas fa-plane fa-2x" style="transform:rotate(calc(-45deg + ' + aircraftProperties.Trak + 'deg)) scale(' + Math.max(1, aircraftProperties.Alt / 10500) + ');" aria-hidden="true"></i>'
+              html: '<i class="fas fa-plane fa-2x" style="transform:rotate(calc(-45deg + ' + aircraft[10] + 'deg)) scale(' + Math.max(1, aircraft[13] / 10500) + ');" aria-hidden="true"></i>'
             })
           }
         );
 
         // hold onto the aircraft info for later usage
-        parallaxMarker._aircraftProperties = aircraftProperties;
+        parallaxMarker._aircraft = aircraft;
 
-        // show the "shadow" of the aircraft at its reported coordinates on the ground
+        // also when zoomed in, show the "shadow" of the aircraft at its reported coordinates on the ground
         var shadowMarker = L.marker(
           {
-            lat: aircraftProperties.Lat,
-            lng: aircraftProperties.Long
+            lat: aircraft[6],
+            lng: aircraft[5]
           }, {
             icon: L.divIcon({
               className: 'leaflet-marker-icon leaflet-zoom-animated',
-              html: '<i class="fas fa-plane fa-2x shadow" style="transform:rotate(calc(-45deg + ' + aircraftProperties.Trak + 'deg));" aria-hidden="true"></i>'
+              html: '<i class="fas fa-plane fa-2x shadow" style="transform:rotate(calc(-45deg + ' + aircraft[10] + 'deg));" aria-hidden="true"></i>'
             }),
             interactive: false,
             pane: 'shadowPane'
           }
         );
 
-        aircraftParallaxGroupLayer.addLayer(parallaxMarker);
-        aircraftShadowGroupLayer.addLayer(shadowMarker);
+        worldwideAircraftGroupLayer.addLayer(simpleCircleMarker);
+
+        currentAircraftMarkers.parallax.push(parallaxMarker);
+        currentAircraftMarkers.shadow.push(shadowMarker);
       });
+
+      filterParallaxAircraftAtCurrentMapBounds();
     })
     .fail(function(error) {
+      if (currentAjax) {
+        currentAjax = null;
+      }
+
+      // TODO: repeat with interval?
+      // setTimeout(generateAircraftWorldwide, 10000);
+
+      if (error.statusText === 'stopped early') {
+        return;
+      }
+
       radarNode.classList.add('off');
       console.error(error);
     });
+}
+
+function filterParallaxAircraftAtCurrentMapBounds() {
+  if (map.hasLayer(worldwideAircraftGroupLayer)) {
+    return;
+  }
+
+  aircraftParallaxGroupLayer.clearLayers();
+  aircraftShadowGroupLayer.clearLayers();
+
+  var mapBounds = map.getBounds();
+
+  currentAircraftMarkers.parallax.forEach(function(parallaxMarker, index) {
+    if (mapBounds.contains(parallaxMarker.getLatLng())) {
+      aircraftParallaxGroupLayer.addLayer(parallaxMarker);
+      aircraftShadowGroupLayer.addLayer(currentAircraftMarkers.shadow[index]);
+    }
+  });
+
+  var aircraftCount = aircraftParallaxGroupLayer.getLayers().length;
+
+  var highestAltitude = aircraftParallaxGroupLayer.getLayers()
+    .map(function(layer) {
+      return layer._aircraft[13];
+    })
+    .reduce(function(previousValue, currentValue) {
+      return Math.max(previousValue, currentValue);
+    }, 0);
+
+  aircraftNode.innerHTML = '<p class="instructions">Interact with aircraft to learn more.</p><hr>';
+
+  localSummaryStatsHTML = [
+    '<p>Of the <span style="font-weight: bold;">',
+    aircraftCount,
+    '</span> aircraft here, the highest is at <span style="font-weight: bold;">',
+    highestAltitude,
+    ' ft</span>.</p>'
+  ].join('');
+
+  aircraftSummaryNode.innerHTML = localSummaryStatsHTML;
 }
 
 function updateTerminator(terminator) {

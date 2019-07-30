@@ -27,11 +27,15 @@ body, div, input {
   user-select: none;
   cursor: default;
   padding: 0 10px;
-  background-color: rgba(255, 255, 255, 0.7)
+  background-color: rgba(255, 255, 255, 0.9)
 }
 
 .info p {
   margin: 10px 0;
+}
+
+.instructions {
+  font-style: italic;
 }
 
 .esri-truncated-attribution:hover {
@@ -62,7 +66,7 @@ body, div, input {
     opacity: 0.8;
   }
   50% {
-    opacity: 0.4;
+    opacity: 0.3;
   }
   100% {
     transform: rotate(360deg);
@@ -84,12 +88,12 @@ body, div, input {
     border-color: deepskyblue
 }
 
-.author-credit {
+.custom-credit {
   font-size: 1.4em;
   font-weight: bold;
 }
 
-.author-credit a {
+.author-credit {
   color: #FF005E !important;
-  text-decoration: underline;
+  text-decoration: underline !important;
 }

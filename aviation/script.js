@@ -18,8 +18,6 @@ var terminator = L.terminator({
 // aircraft marker group layers
 var aircraftParallaxGroupLayer = L.featureGroup()
   .on('click mouseover', function(e) {
-    // TODO: need to track witch parallaxMarker was interacted with b/c currently it gets reset after a map move
-
     aircraftParallaxGroupLayer.eachLayer(function(layer) {
       if (map.hasLayer(layer)) {
         layer.getElement().style.color = '';
@@ -73,17 +71,15 @@ var map = L.map('map', {
     filterParallaxAircraftAtCurrentMapBounds();
   });
 
-// map.attributionControl.addAttribution('Aircraft data provided by <span style="font-weight: bold;">The OpenSky Network</span> <a href="https://www.opensky-network.org/" target="_blank">https://www.opensky-network.org</a>');
-
 map.attributionControl.setPrefix(
-  '<span class="author-credit"><a href="https://twitter.com/JWasilGeo" target="_blank">@JWasilGeo</a></span> | ' +
-  'Aircraft data provided by <span style="font-weight: bold;">The OpenSky Network</span> <a href="https://www.opensky-network.org" target="_blank">https://www.opensky-network.org</a> | ' +
+  '<a class="custom-credit author-credit" href="https://twitter.com/JWasilGeo" target="_blank">@JWasilGeo</a> | ' +
+  'Aircraft data provided by <span class="custom-credit">The OpenSky Network</span> <a href="https://www.opensky-network.org" target="_blank">https://www.opensky-network.org</a> | ' +
   map.attributionControl.options.prefix
 );
 
 L.esri.Geocoding.geosearch({
-  placeholder: 'SEARCH FOR AN AIRPORT',
-  title: 'Airport Location Search',
+  placeholder: 'Search for an airport',
+  title: 'Airport location search',
   position: 'topright',
   expanded: true,
   collapseAfterResult: false,
@@ -120,6 +116,8 @@ function toggleWorldwideLayer(oldZoom, newZoom) {
       aircraftShadowGroupLayer.addTo(map);
     }
 
+    aircraftNode.innerHTML = '<p class="instructions">Interact with aircraft to learn more.</p><hr>';
+
     aircraftSummaryNode.innerHTML = localSummaryStatsHTML || aggregateSummaryStatsHTML;
   } else if (oldZoom > newZoom && newZoom <= thresholdZoom) {
     // zooming out and past a threshold
@@ -140,8 +138,6 @@ function toggleWorldwideLayer(oldZoom, newZoom) {
 }
 
 function updateParallaxZOffset(oldZoom, newZoom) {
-  // TODO: keep doing this?
-
   var thresholdZoom = 10;
   if (oldZoom < newZoom && newZoom >= thresholdZoom) {
     // zooming in and past a threshold:
@@ -182,7 +178,7 @@ function generateAircraftWorldwide() {
         currentAjax = null;
       }
 
-      // TODO: repeat with an interval?
+      // TODO: repeat with interval?
       // setTimeout(generateAircraftWorldwide, 10000);
 
       radarNode.classList.add('off');
@@ -214,10 +210,10 @@ function generateAircraftWorldwide() {
         });
 
       aggregateSummaryStatsHTML = [
-        '<p><span style="color: deepskyblue; font-size: 1.3em; font-weight: bold;">',
+        '<p><span style="font-size: 1.35em; font-weight: bold;">',
         aircraftList.length,
-        '</span> AIRCRAFT AROUND THE WORLD CURRENTLY REPORTING THEIR POSITION</p>',
-        '<p style="font-style: italic; color: deepskyblue;">ZOOM IN OR SEARCH FOR AN AIRPORT</p>'
+        '</span> aircraft around the world are currently reporting their position.</p>',
+        '<p class="instructions">Zoom in or search for an airport.</p>'
       ].join('');
 
       aircraftSummaryNode.innerHTML = aggregateSummaryStatsHTML;
@@ -242,7 +238,6 @@ function generateAircraftWorldwide() {
             lng: aircraft[5]
           }, {
             parallaxZoffset: aircraft[13] / 10, // use the altitude for the parallax z-offset value
-            // TODO: figure out a good scale transform
             icon: L.divIcon({
               className: 'leaflet-marker-icon leaflet-zoom-animated leaflet-interactive',
               html: '<i class="fas fa-plane fa-2x" style="transform:rotate(calc(-45deg + ' + aircraft[10] + 'deg)) scale(' + Math.max(1, aircraft[13] / 10500) + ');" aria-hidden="true"></i>'
@@ -281,7 +276,7 @@ function generateAircraftWorldwide() {
         currentAjax = null;
       }
 
-      // TODO: repeat with an interval?
+      // TODO: repeat with interval?
       // setTimeout(generateAircraftWorldwide, 10000);
 
       if (error.statusText === 'stopped early') {
@@ -310,7 +305,6 @@ function filterParallaxAircraftAtCurrentMapBounds() {
     }
   });
 
-  // TODO: text for "local stats"
   var aircraftCount = aircraftParallaxGroupLayer.getLayers().length;
 
   var highestAltitude = aircraftParallaxGroupLayer.getLayers()
@@ -321,12 +315,14 @@ function filterParallaxAircraftAtCurrentMapBounds() {
       return Math.max(previousValue, currentValue);
     }, 0);
 
+  aircraftNode.innerHTML = '<p class="instructions">Interact with aircraft to learn more.</p><hr>';
+
   localSummaryStatsHTML = [
-    '<p>AIRCRAFT: ',
+    '<p>Of the <span style="font-weight: bold;">',
     aircraftCount,
-    '</p><p>HIGHEST: ',
+    '</span> aircraft here, the highest is at <span style="font-weight: bold;">',
     highestAltitude,
-    ' ft</p>'
+    ' ft</span>.</p>'
   ].join('');
 
   aircraftSummaryNode.innerHTML = localSummaryStatsHTML;

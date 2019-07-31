@@ -219,7 +219,6 @@ function generateAircraftWorldwide() {
       aircraftSummaryNode.innerHTML = aggregateSummaryStatsHTML;
 
       aircraftList.forEach(function(aircraft) {
-        // var simpleCircleMarker = L.circleMarker([aircraft.Lat, aircraft.Long], {
         var simpleCircleMarker = L.circleMarker([aircraft[6], aircraft[5]], {
           radius: 2, // pixels,
           interactive: false,
@@ -317,13 +316,25 @@ function filterParallaxAircraftAtCurrentMapBounds() {
 
   aircraftNode.innerHTML = '<p class="instructions">Interact with aircraft to learn more.</p><hr>';
 
-  localSummaryStatsHTML = [
-    '<p>Of the <span style="font-weight: bold;">',
-    aircraftCount,
-    '</span> aircraft here, the highest is at <span style="font-weight: bold;">',
-    highestAltitude,
-    ' ft</span>.</p>'
-  ].join('');
+  if (!aircraftCount) {
+    localSummaryStatsHTML = [
+      '<p>No aircraft here.</p>'
+    ].join('');
+  } else if (aircraftCount === 1) {
+    localSummaryStatsHTML = [
+      '<p>The <span style="font-weight: bold;">1</span> aircraft here is flying at <span style="font-weight: bold;">',
+      highestAltitude,
+      ' ft</span>.</p>'
+    ].join('');
+  } else {
+    localSummaryStatsHTML = [
+      '<p>Of the <span style="font-weight: bold;">',
+      aircraftCount,
+      '</span> aircraft here, the highest is at <span style="font-weight: bold;">',
+      highestAltitude,
+      ' ft</span>.</p>'
+    ].join('');
+  }
 
   aircraftSummaryNode.innerHTML = localSummaryStatsHTML;
 }

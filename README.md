@@ -1,6 +1,8 @@
 # leaflet-experiments
 
-Demos and experiments with [LeafletJS](https://leafletjs.com/). Also check out my [Esri experiments](https://github.com/jwasilgeo/esri-experiments).
+Web mapping experiments using [LeafletJS](https://leafletjs.com/).
+
+Also check out my [Esri experiments](https://github.com/jwasilgeo/esri-experiments) and other data visualizations on [CodePen](https://codepen.io/jwasilgeo/).
 
 ## [Aviation Tracker](https://jwasilgeo.github.io/leaflet-experiments/aviation/)
 

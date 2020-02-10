@@ -69,13 +69,17 @@ function generateNighttimeLayer(terminator) {
   });
 }
 
-function updateSolarInfo(e) {
-  var latLngCoordinates = e.target.getCenter().wrap();
+function updateSolarInfo() {
+  var latLngCoordinates = map.getCenter().wrap();
 
-  var sunTimes = SunCalc.getTimes(Date.now(), latLngCoordinates.lat, latLngCoordinates.lng);
+  var date = Date.now();
 
-  var d = spacetime
-    .now()
+  // calculate sun times for the given date
+  // we're interested in "nadir" and "solarNoon"
+  var sunTimes = SunCalc.getTimes(date, latLngCoordinates.lat, latLngCoordinates.lng);
+
+  // create a spacetime moment for the given date but at the map's center point location
+  var d = spacetime(date)
     .in({
       lat: latLngCoordinates.lat,
       lon: latLngCoordinates.lng
@@ -87,11 +91,14 @@ function updateSolarInfo(e) {
     d.timezone().name,
   ].join(' ');
 
+  // find out if the map's center point location falls in day or night
+  // by checking for the point being contained in the terminator polygon
   var isNight = turf.booleanContains(
     L.terminator().toGeoJSON(),
     turf.point([latLngCoordinates.lng, latLngCoordinates.lat])
   );
 
+  // update the html display text
   if (isNight) {
     solarInfoNode.innerHTML = [
       '<h1>Night and Day</h1><div>',

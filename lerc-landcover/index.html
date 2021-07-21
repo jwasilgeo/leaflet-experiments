@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <meta name="description" content="Lerc Imagery Landcover Layer - LeafletJS experiment by Jacob Wasilkowski" />
+
+  <title>Lerc Imagery Land Cover Layer</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      left: 0;
+    }
+
+    .author-credit {
+      font-size: 1.4em;
+      font-weight: bold;
+    }
+
+    .author-credit a {
+      color: #FF005E !important;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/lerc@2.0.0/LercDecode.js"></script>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

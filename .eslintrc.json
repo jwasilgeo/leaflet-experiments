@@ -2,7 +2,7 @@
   "env": {
     "browser": true,
     "commonjs": false,
-    "es6": false,
+    "es6": true,
     "node": false
   },
   "rules": {
@@ -23,6 +23,7 @@
     "SunCalc": false,
     "spacetime": false,
     "spacetimeGeo": false,
-    "$": false
+    "$": false,
+    "Lerc": false
   }
 }

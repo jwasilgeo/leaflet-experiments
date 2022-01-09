@@ -95,6 +95,7 @@ const Lerc8bitColorLayer = L.GridLayer.extend({
 // create a LeafletJS map in WKID 4326
 const map = L.map("map", {
   crs: L.CRS.EPSG4326,
+  maxZoom: 13,
 }).setView([35, 73], 3);
 
 map.attributionControl.setPrefix(

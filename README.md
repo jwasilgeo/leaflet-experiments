@@ -40,6 +40,14 @@ Also check out my [Esri experiments](https://github.com/jwasilgeo/esri-experimen
 
 - Check out this [Esri Community thread](https://community.esri.com/t5/esri-leaflet-questions/how-to-diagnose-error-rendering-esri-2020-land/m-p/1079790) and [GitHub `esri-leaflet` discussion](https://github.com/Esri/esri-leaflet/issues/726) for more info.
 
+## [Esri-Leaflet and Chart.js](https://developers.arcgis.com/esri-leaflet/samples/dynamic-chart/)
+
+<https://developers.arcgis.com/esri-leaflet/samples/dynamic-chart/>
+
+> Plot feature attributes on a dynamic chart that updates as users pan and zoom, and respond to chart interactions by modifying feature layer contents.
+
+[![screenshot of Esri-Leaflet and Chart.js](https://raw.githubusercontent.com/jwasilgeo/leaflet-experiments/master/esri-leaflet/dynamic-chart-screenshot.png)](https://developers.arcgis.com/esri-leaflet/samples/dynamic-chart/)
+
 ## Licensing
 
 A copy of the license is available in the repository's [LICENSE](./LICENSE.md) file.
